@@ -6,7 +6,6 @@ class RedisClient {
     this.client = redis.createClient();
 
     this.client.on('error', (err) => {
-      // eslint-disable-next-line no-console
       console.error('Redis error:', err);
     });
   }
