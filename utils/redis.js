@@ -6,16 +6,17 @@ class RedisClient {
     this.client = redis.createClient();
 
     this.client.on('error', (err) => {
+      // eslint-disable-next-line no-console
       console.error('Redis error:', err);
     });
   }
 
-// Method to check if the connection to Redis is alive
+  // Method to check if the connection to Redis is alive
   isAlive() {
     return this.client.ping() === 'PONG';
   }
 
- // Method to get a value from Redis based on a key
+  // Method to get a value from Redis based on a key
   async get(key) {
     return new Promise((resolve, reject) => {
       this.client.get(key, (err, value) => {
@@ -28,7 +29,7 @@ class RedisClient {
     });
   }
 
-// Method to set a value in Redis with a key and optional expiration
+  // Method to set a value in Redis with a key and optional expiration
   async set(key, value, duration) {
     return new Promise((resolve, reject) => {
       this.client.setex(key, duration, value, (err) => {
@@ -41,7 +42,7 @@ class RedisClient {
     });
   }
 
-// Method to delete a value from Redis based on a key
+  // Method to delete a value from Redis based on a key
   async del(key) {
     return new Promise((resolve, reject) => {
       this.client.del(key, (err, count) => {
