@@ -1,60 +1,29 @@
 const redis = require('redis');
+const { promisify } = require('util');
 
-// redis client class
 class RedisClient {
   constructor() {
-    this.client = redis.createClient();
+    const host = process.env.REDIS_HOST || 'localhost';
+    const port = process.env.REDIS_PORT || 6379;
 
+    this.client = redis.createClient({ host, port });
     this.client.on('error', (err) => {
-      console.error('Redis error:', err);
+      console.error('Redis client error:', err);
     });
+
+    // Promisify Redis client methods
+    this.pingAsync = promisify(this.client.ping).bind(this.client);
   }
 
-  // Method to check if the connection to Redis is alive
-  isAlive() {
-    return this.client.ping() === 'PONG';
-  }
-
-  // Method to get a value from Redis based on a key
-  async get(key) {
-    return new Promise((resolve, reject) => {
-      this.client.get(key, (err, value) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(value);
-        }
-      });
-    });
-  }
-
-  // Method to set a value in Redis with a key and optional expiration
-  async set(key, value, duration) {
-    return new Promise((resolve, reject) => {
-      this.client.setex(key, duration, value, (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(true);
-        }
-      });
-    });
-  }
-
-  // Method to delete a value from Redis based on a key
-  async del(key) {
-    return new Promise((resolve, reject) => {
-      this.client.del(key, (err, count) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(count);
-        }
-      });
-    });
+  async isAlive() {
+    try {
+      await this.pingAsync();
+      return true;
+    } catch (err) {
+      return false;
+    }
   }
 }
 
 const redisClient = new RedisClient();
-
 module.exports = redisClient;
